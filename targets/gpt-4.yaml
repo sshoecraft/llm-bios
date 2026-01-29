@@ -1,0 +1,16 @@
+# GPT-4 Target Configuration
+
+model:
+  name: gpt-4
+  provider: openai
+  context_window: 128000
+  
+format_preference: json
+
+compression:
+  omit_nulls: true
+  collapse_singletons: false
+
+output:
+  include_meta: true
+  indent: 2
