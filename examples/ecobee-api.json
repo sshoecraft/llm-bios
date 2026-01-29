@@ -1,0 +1,26 @@
+[
+  {
+    "type": "entity",
+    "content": {
+      "name": "Ecobee Thermostat API",
+      "description": "The Ecobee thermostat is controlled via REST API.",
+      "attributes": [
+        {"name": "authentication", "type": "string", "required": true}
+      ]
+    },
+    "meta": {"sourceDocument": "ecobee-api.md", "compilerVersion": "v1.0.0"}
+  },
+  {
+    "type": "procedure",
+    "content": {
+      "name": "Read Current Temperature",
+      "steps": [
+        {"action": "Obtain API key from Ecobee developer portal"},
+        {"action": "Set Authorization header", "parameters": ["Bearer {api_key}"]},
+        {"action": "GET /thermostat"},
+        {"action": "Extract currentTemperature from response"}
+      ]
+    },
+    "meta": {"sourceDocument": "ecobee-api.md", "compilerVersion": "v1.0.0"}
+  }
+]
