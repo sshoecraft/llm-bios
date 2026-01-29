@@ -1,0 +1,40 @@
+{
+  "type": "entity",
+  "content": {
+    "name": "Doc2JSONCompiler",
+    "description": "A deterministic, self-applicable compiler that turns any free-form document into minimal, retrieval-ready JSON.",
+    "attributes": [
+      {
+        "name": "classificationRules",
+        "type": "text",
+        "required": true,
+        "description": "Detect cue words (Fact, Procedure, Mapping, Entity) and score them. +1 for each cue, +2 for explicit headings, +1 for structural signals. Choose highest-scoring type; ties broken by document order. Fallback to Fact when no cue scores >0."
+      },
+      {
+        "name": "extractionRules",
+        "type": "text",
+        "required": true,
+        "description": "For each top-level type, extract minimal fields: Fact -> statement, source, validFrom, validTo. Procedure -> name, preconditions, steps[], postconditions, inputs, outputs. Mapping -> name, entries[]. Entity -> name, description, attributes[], relationships[], constraints. Omit optional fields."
+      },
+      {
+        "name": "outputSchema",
+        "type": "json",
+        "required": true,
+        "description": "Root envelope { type, content, meta }. Content follows type-specific schema. Multiple types become array."
+      }
+    ],
+    "relationships": [
+      {"type": "references", "target": "JSON", "cardinality": "1"},
+      {"type": "produces", "target": "CompiledDocument", "cardinality": "*"}
+    ],
+    "constraints": [
+      "Deterministic given same input",
+      "Omit null/optional fields"
+    ]
+  },
+  "meta": {
+    "sourceDocument": "Doc2JSONCompiler specification (self-compiled)",
+    "compiledAt": "2026-01-29T05:18:00Z",
+    "compilerVersion": "v1.0.0"
+  }
+}
