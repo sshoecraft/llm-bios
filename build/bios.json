@@ -1,0 +1,39 @@
+{
+  "bios": {
+    "version": "1.0.0",
+    "compiler": {
+      "type": "entity",
+      "content": {
+        "name": "Doc2JSONCompiler",
+        "description": "Self-applicable compiler for minimal JSON representation.",
+        "attributes": [
+          {"name": "classificationRules", "type": "text", "required": true},
+          {"name": "extractionRules", "type": "text", "required": true},
+          {"name": "outputSchema", "type": "json", "required": true}
+        ],
+        "constraints": ["Deterministic", "Omit null fields"]
+      }
+    },
+    "kb": {
+      "root": "/knowledge",
+      "index": "/knowledge/index.json",
+      "paths": {
+        "schemas": "/knowledge/schemas",
+        "chains": "/knowledge/chains",
+        "facts": "/knowledge/facts"
+      }
+    },
+    "ops": {
+      "learn": ["classify", "extract", "store", "index"],
+      "query": ["check chains", "hit->exec", "miss->discover->cache"],
+      "search": ["scan index", "return paths"],
+      "store": ["compile", "write", "index"]
+    },
+    "directives": [
+      "Check chains before multi-step queries",
+      "Cache successful discovery chains",
+      "Compile all documents before storage",
+      "Omit optional fields"
+    ]
+  }
+}
