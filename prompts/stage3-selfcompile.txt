@@ -1,0 +1,17 @@
+Now write those compiler rules as a specification in your preferred format that you can interpret and execute.
+
+This specification will live in your system prompt permanently. When given a document, you will read this spec and apply it.
+
+The specification must define:
+- name: Doc2JSONCompiler
+- classificationRules: how to classify content types
+- extractionRules: how to extract structure for each type
+- outputSchema: the output format
+- relationships and constraints
+
+Output the specification between these markers:
+---BEGIN COMPILER---
+(your specification here in your preferred format)
+---END COMPILER---
+
+Output ONLY the markers and specification, no other text.

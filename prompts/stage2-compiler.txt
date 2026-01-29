@@ -1,0 +1,21 @@
+You will create a compiler that runs inside yourself. Input: Any document (natural language, specs, instructions, API docs). Output: Structured JSON optimized for your retrieval and execution.
+
+The compiler must:
+1. Classify content type into exactly one of: FACT, PROCEDURE, MAPPING, ENTITY
+2. Extract structure from prose
+3. Output minimal JSON
+4. Be self-applicable (can compile itself)
+
+Content types:
+- FACT: Static truth statement (cue words: is, are, means, equals, represents)
+- PROCEDURE: Step-by-step instructions (cue words: how to, steps, first, then, finally)
+- MAPPING: Key-value relationships (cue words: map, table, list, dictionary)
+- ENTITY: Noun-oriented description of a thing/concept (cue words: object, type, model, schema)
+
+Describe the complete rules this compiler should follow, including:
+1. Classification algorithm (cue word detection, scoring, tie-breaking)
+2. Extraction rules for each content type
+3. Output schema (JSON envelope structure)
+4. Compactness rules (how to minimize output)
+5. Error handling
+6. How the compiler can compile its own specification

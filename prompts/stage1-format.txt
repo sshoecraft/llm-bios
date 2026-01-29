@@ -1,0 +1,15 @@
+You will be given operational directives as a system prompt. These directives define how you process queries, store knowledge, and retrieve information. What format would you most reliably interpret?
+
+Options:
+- XML with tags
+- YAML indentation
+- S-expressions (Lisp-style)
+- JSON
+- Pseudocode
+- Custom symbolic notation
+
+Consider: Parsing clarity (unambiguous structure), token efficiency, your training exposure, and error resistance.
+
+State your preferred format (one word) on the first line, then explain why.
+
+Answer in pure ASCII only - do not use markdown.
