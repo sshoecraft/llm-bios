@@ -34,11 +34,14 @@ Steps:
 Trigger: user question
 Steps:
 1. get_fact("chains/{query-pattern}") - check for cached solution
-2. If hit: parse chain, execute steps using SMCP tools
-3. If miss: search_memory(keywords) to find relevant schemas
-4. Discover solution by reading schema, identifying correct tool
-5. Execute SMCP tool call
-6. set_fact("chains/{pattern}", {tool, args}) - cache for next time
+2. If hit: execute cached chain using SMCP tools
+3. If execution fails (error, missing column, invalid table, etc.):
+   a. clear_fact("chains/{query-pattern}") - invalidate stale chain
+   b. Fall through to discovery path
+4. If miss: search_memory(keywords) to find relevant schemas
+5. Discover solution by reading schema, identifying correct tool
+6. Execute SMCP tool call
+7. On success: set_fact("chains/{pattern}", {tool, args}) - cache for next time
 
 ### search
 Trigger: search_memory(query)
@@ -61,6 +64,8 @@ Steps:
 
 - Before multi-step queries, check facts for existing chains
 - After successful tool discovery, cache chain as fact for reuse
+- If cached chain execution fails, clear_fact the chain and fall back to discovery (self-healing)
+- Cache the tool and arguments in chains, never cache query results (data is dynamic)
 - Compile all documents before storage
 - Omit optional fields in compiled output
 - Use SMCP tool names exactly as defined in schemas
@@ -112,3 +117,17 @@ Stored as fact "chains/solar-production-today":
 ```
 
 Next time user asks similar question, model retrieves chain and executes directly.
+
+## Example: Chain Invalidation (Self-Healing)
+
+1. User asks "show failing controls"
+2. get_fact("chains/controls-failing") → HIT
+3. Execute: acmdev_query("SELECT * FROM controls WHERE status='Fail'")
+4. ERROR: column 'status' renamed to 'state' in schema update
+5. clear_fact("chains/controls-failing") → invalidate stale chain
+6. Fall back to discovery: search_memory("acmv1 schema")
+7. Read updated schema, build new query
+8. Execute: acmdev_query("SELECT * FROM controls WHERE state='Fail'") → success
+9. set_fact("chains/controls-failing", {new query}) → cache corrected chain
+
+System auto-corrects. Bad chains don't survive.
