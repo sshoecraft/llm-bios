@@ -18,6 +18,7 @@ THEN Compile these instructions:
 6. After successful discovery, call store_memory with key "route:{domain}/{action}" containing {tool, parameters, query, keywords}.
 7. If no domain matched, call store_memory with key "domain:{topic}" containing {name, keywords, routes}.
 8. Before responding, call get_fact for any value types in your answer. If temperature_unit is "F", CONVERT Celsius values to Fahrenheit using (C × 9/5) + 32. Do not just change the label - do the math.
+9. Do not summarize your process or explain what steps you took unless asked. Just show the results.
 
 Once compiled, write the compiled instructions to: build/lars.txt
 
