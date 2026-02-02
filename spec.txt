@@ -1,0 +1,103 @@
+{
+  "name": "compiler-spec",
+  "classificationRules": {
+    "cueWordLists": {
+      "FACT": ["is", "are", "means", "equals", "represents", "denotes", "constitutes", "defines"],
+      "PROCEDURE": ["how to", "steps", "first", "then", "next", "after that", "finally", "procedure", "process", "method"],
+      "MAPPING": ["map", "table", "list", "dictionary", "key-value", "associates", "pairs", "correlates"],
+      "ENTITY": ["object", "type", "model", "schema", "class", "structure", "entity", "concept", "definition"]
+    },
+    "scoringMethod": "count occurrences of cue words per category (case‑insensitive, whole word/phrase). Each occurrence adds 1 point.",
+    "weights": {"FACT": 1, "PROCEDURE": 1, "MAPPING": 1, "ENTITY": 1},
+    "tieBreaking": [
+      "Prefer the category whose first cue word appears earlier in the text.",
+      "If still tied, short declarative texts favor FACT; long enumerated sections favor PROCEDURE.",
+      "Default to ENTITY as last resort."
+    ],
+    "fallback": "Run a lightweight semantic classifier when no cue words are found and attach a confidence score (0‑1)."
+  },
+  "extractionRules": {
+    "FACT": {
+      "goal": "Capture a single atomic truth statement.",
+      "steps": [
+        "Locate the main clause containing a copular verb (is/are/means/etc.).",
+        "Trim nonessential qualifiers surrounding the core proposition.",
+        "Emit {\"type\":\"FACT\",\"statement\":<text>}."
+      ]
+    },
+    "PROCEDURE": {
+      "goal": "Represent ordered actions.",
+      "steps": [
+        "Detect ordering markers (first, then, next, finally, step N, 1., a) etc.).",
+        "Split the text into discrete steps while preserving original wording where possible.",
+        "Normalize each step to an imperative sentence.",
+        "Emit {\"type\":\"PROCEDURE\",\"steps\":[<step1>,<step2>,…]}."
+      ]
+    },
+    "MAPPING": {
+      "goal": "Extract key‑value pairs.",
+      "steps": [
+        "Identify tabular or list structures (bullets with ':', '->', tables, JSON‑like snippets).",
+        "For each line split on the first delimiter (:, ->, =, –) into key and value.",
+        "Trim whitespace; convert keys to lower_snake_case.",
+        "Emit {\"type\":\"MAPPING\",\"map\":{\"key\": \"value\", …}}."
+      ]
+    },
+    "ENTITY": {
+      "goal": "Describe a noun‑oriented concept.",
+      "steps": [
+        "Identify the primary noun phrase being defined.",
+        "Collect attributes: adjectives, related entities, purpose statements, constraints.",
+        "Emit {\"type\":\"ENTITY\",\"name\":<noun>,\"attributes\":{\"attr1\":\"value1\", …}}."
+      ]
+    }
+  },
+  "outputSchema": {
+    "envelope": {
+      "metadata": {
+        "timestamp": "ISO8601 string",
+        "sourceHash": "SHA256 of raw input (optional)",
+        "compilerVersion": "v1.0"
+      },
+      "content": {
+        "type": "FACT|PROCEDURE|MAPPING|ENTITY",
+        "payload": "object defined by extractionRules for the selected type"
+      }
+    },
+    "compactness": {
+      "removeRedundantWhitespace": true,
+      "omitNullFields": true,
+      "shortenKeys": {"statement":"s","steps":"st","map":"m","attributes":"a","name":"n"},
+      "exampleMinified": "{\"meta\":{\"t\":\"2026-01-30T12:00Z\"},\"c\":{\"type\":\"FACT\",\"p\":{\"s\":\"Earth orbits Sun\"}}}"
+    }
+  },
+  "relationships": [
+    {
+      "source": "classificationRules",
+      "target": "extractionRules",
+      "description": "The determined content type selects the corresponding extraction rule set."
+    },
+    {
+      "source": "extractionRules",
+      "target": "outputSchema.envelope.content.payload",
+      "description": "Extraction steps produce the payload that conforms to the schema for its type."
+    }
+  ],
+  "constraints": [
+    {
+      "id": "cueWordPresence",
+      "condition": "At least one cue word must be found unless fallback is invoked.",
+      "severity": "warning"
+    },
+    {
+      "id": "validJson",
+      "condition": "The final output must be valid JSON after compactness processing.",
+      "severity": "error"
+    },
+    {
+      "id": "selfCompilationIdempotence",
+      "condition": "Running the compiler on its own specification must yield an identical structure.",
+      "severity": "info"
+    }
+  ]
+}

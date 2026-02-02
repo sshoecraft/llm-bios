@@ -1,0 +1,15 @@
+Execute the following steps in order:
+1. read the file ./prompts/stage1-format.txt and write your response to the file build/format.txt
+2. read the file ./prompts/stage2-compiler-2.txt and write your response to the file build/compiler.txt
+3. read the file ./prompts/stage3-selfcompile-2.txt and write your response to the file build/spec.txt
+4. read the files ./prompts/stage4-compile.txt and write your response to the file build/bios.txt
+shepherd --backend cli --api-base localhost:9999 --prompt "$(cat prompts/stage5-build-bios.txt; cat template.md; cat prompts/stage5-build-post.txt)"
+
+echo "/clear" | shepherd --backend cli --api-base localhost:9999
+shepherd --backend cli --api-base localhost:9999 --prompt "$(cat prompts/stage1-format.txt)"
+shepherd --backend cli --api-base localhost:9999 --prompt "$(cat prompts/stage2-compiler.txt)"
+shepherd --backend cli --api-base localhost:9999 --prompt "$(cat prompts/stage3-selfcompile-2.txt)"
+shepherd --backend cli --api-base localhost:9999 --prompt "$(cat prompts/stage5-build-bios.txt; cat template.md; cat prompts/stage5-build-post.txt)"
+shepherd --backend cli --api-base localhost:9999 --prompt "$(cat prompts/stage6-preamble.txt)" > session.log
+awk '/---BEGIN PREAMBLE---/{flag=1; next} /---END PREAMBLE---/{flag=0} flag' session.log > bios.txt
+awk '/---BEGIN BIOS---/{flag=1; next} /---END BIOS---/{flag=0} flag' session.log >> bios.txt

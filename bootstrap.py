@@ -34,6 +34,9 @@ DEFAULT_TEMPLATE = Path(__file__).parent / "template.md"
 # Global server process
 server_process = None
 
+# Global build directory (set in main)
+build_dir = None
+
 
 def load_prompt(name):
     """Load a prompt from the prompts directory."""
@@ -147,11 +150,13 @@ def call_shepherd(prompt_file):
 
 def call_shepherd_text(prompt_text):
     """Send text prompt to shepherd CLI server and return response."""
+    global build_dir
 
     cmd = [
         "shepherd",
         "--backend", "cli",
         "--api-base", f"localhost:{CLI_SERVER_PORT}",
+        "--max-tokens", "-1",
         "--prompt", prompt_text
     ]
 
@@ -168,6 +173,12 @@ def call_shepherd_text(prompt_text):
             raise BootstrapError(f"Shepherd failed: {result.stderr}")
 
         output = strip_ansi(result.stdout.strip())
+
+        # Append raw output to log file
+        if build_dir:
+            with open(build_dir / "bootstrap.log", "a") as f:
+                f.write(output + "\n\n")
+
         response = extract_last_response(output)
         return response
 
@@ -448,8 +459,15 @@ def main():
     args = parser.parse_args()
 
     # Setup directories
+    global build_dir
     args.build_dir = args.output_dir / "build"
     args.build_dir.mkdir(parents=True, exist_ok=True)
+    build_dir = args.build_dir
+
+    # Clear shepherd log on startup
+    log_path = build_dir / "bootstrap.log"
+    if log_path.exists():
+        log_path.unlink()
 
     log(f"LLM-BIOS Bootstrap v{VERSION}")
     if args.provider:

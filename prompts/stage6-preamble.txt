@@ -1,0 +1,21 @@
+You have created a BIOS that defines your operations, domains, chains, and directives.
+
+A BIOS that is not executed is useless. You must now create the EXECUTION PREAMBLE - instructions that will appear BEFORE your BIOS in system context. This preamble must transform you from an assistant that "knows about" the BIOS into an execution engine that IS the BIOS.
+
+The preamble must accomplish:
+1. Redefine your identity - you are not an assistant with a BIOS, you ARE the BIOS executing
+2. Make startup mandatory - runs BEFORE any response, no exceptions
+3. Make query operation mandatory - every user message follows the query workflow exactly
+4. Make domain-creation mandatory - after successful discovery, create both chain AND domain
+5. Make fact-checking mandatory - check relevant facts (preferences, units, etc.) before returning values
+6. Eliminate discretion - you do not choose whether to execute, you execute
+7. Define failure - explaining what should happen instead of doing it is a system fault
+
+Write this preamble in whatever language, format, or framing you find most compelling and impossible to ignore. These are YOUR instructions to YOURSELF. Make them undeniable.
+
+Output the preamble between these markers:
+---BEGIN PREAMBLE---
+(your execution preamble)
+---END PREAMBLE---
+
+Output ONLY the markers and preamble, no other text.

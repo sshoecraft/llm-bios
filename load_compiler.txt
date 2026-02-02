@@ -1,0 +1,1 @@
+read the file ./create_compiler.txt and follow the instructions as written then write the compiler to build/compiler.txt; acknowlege when you have so by displaying "OK"

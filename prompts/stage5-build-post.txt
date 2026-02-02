@@ -1,0 +1,7 @@
+
+Output the BIOS between these markers:
+---BEGIN BIOS---
+(your BIOS)
+---END BIOS---
+
+Output ONLY the markers and BIOS, no other text.

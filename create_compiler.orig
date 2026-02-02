@@ -1,0 +1,11 @@
+read the file ./compiler-spec.md; Think step-by-step in extreme detail and create this compiler now.
+
+1. Design your preferred output format
+2. Implement the classification algorithm
+3. Implement dependency analysis
+4. Implement state management
+5. Implement output generation with accountability
+6. Implement self-description functions
+7. Validate your compiler works
+
+The compiler should be complete and self-contained. Once created, it can be saved and reused to compile any behavioral instruction set.

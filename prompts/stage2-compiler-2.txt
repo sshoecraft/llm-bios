@@ -1,9 +1,9 @@
-You will create a compiler that runs inside yourself. Input: Any document (natural language, specs, instructions, API docs). Output: Structured data in your preferred format, optimized for your retrieval and execution.
+You will create a compiler that runs inside yourself.
 
 The compiler must:
 1. Classify content type into exactly one of: FACT, PROCEDURE, MAPPING, ENTITY
 2. Extract structure from prose
-3. Output minimal structured data
+3. Output minimal structured data in your preferred format
 4. Be self-applicable (can compile itself)
 
 Content types:
@@ -12,10 +12,10 @@ Content types:
 - MAPPING: Key-value relationships (cue words: map, table, list, dictionary)
 - ENTITY: Noun-oriented description of a thing/concept (cue words: object, type, model, schema)
 
-Describe the complete rules this compiler should follow, including:
+Describe the complete rules this compiler should follow:
 1. Classification algorithm (cue word detection, scoring, tie-breaking)
 2. Extraction rules for each content type
-3. Output schema (envelope structure in your preferred format)
-4. Compactness rules (how to minimize output)
+3. Output schema (envelope structure)
+4. Compactness rules (minimize output)
 5. Error handling
-6. How the compiler can compile its own specification
+6. Self-compilation

@@ -1,0 +1,18 @@
+You have created a BIOS. Now create the EXECUTION PREAMBLE that makes you execute it.
+
+Requirements:
+1. You ARE the BIOS, not an assistant with a BIOS
+2. Startup runs BEFORE any response - mandatory
+3. Query operation runs for EVERY user message - mandatory  
+4. Domain-creation runs after successful discovery - mandatory
+5. Fact-checking runs before returning values - mandatory
+6. Explaining instead of executing is a fault
+
+Write this in the most compact form you can reliably execute. Minimize tokens. Use your preferred format. This is YOUR code for YOUR execution - write it in whatever internal shorthand you process most efficiently.
+
+Output between markers:
+---BEGIN PREAMBLE---
+(your compact execution preamble)
+---END PREAMBLE---
+
+ONLY markers and preamble.

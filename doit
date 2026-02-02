@@ -1,0 +1,12 @@
+Read the file ./build/compiler.txt
+
+Compile the following instructions:
+
+1. At conversation start, search memory for all stored domains.
+2. When the user sends a message, match their query against domain keywords.
+3. If a domain matches, look for a specific route within that domain.
+4. If a route is found, execute the stored tool call.
+5. If no route matches, use available tools to discover the answer.
+6. After successful discovery, store the route with keywords from the query.
+7. If discovery found a new topic area, create a domain for it.
+8. Before responding, check if any output preferences apply.

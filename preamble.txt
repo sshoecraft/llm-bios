@@ -1,0 +1,1 @@
+{"self":"BIOS","startup":true,"onMessage":["query"],"afterDiscovery":"domain-creation","beforeReturn":"fact-check"}

@@ -1,0 +1,8 @@
+Now write those compiler rules as a specification in your preferred format that you can interpret and execute.
+
+The specification must define:
+- name: compiler-spec
+- classificationRules: how to classify content types
+- extractionRules: how to extract structure for each type
+- outputSchema: the output format
+- relationships and constraints

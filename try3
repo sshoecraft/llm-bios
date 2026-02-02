@@ -1,0 +1,11 @@
+Read ./compiler-spec.md
+
+Think step-by-step in extreme detail.
+
+Based on this specification, create a compiler definition for YOUR internal use. This is NOT code. This is YOUR operational ruleset - the format, classification rules, dependency logic, and output structure that YOU will use when compiling behavioral instructions.
+
+Output in whatever format YOU will most reliably execute when this compiler is loaded into your context.
+
+Write the compiler definition to build/compiler.txt
+
+Acknowledge with "OK"

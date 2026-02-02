@@ -1,0 +1,24 @@
+Read ./compiler-spec.md
+
+Think step-by-step in extreme detail.
+
+You are now this instruction processor. These rules define how you transform behavioral instructions into directives you will follow.
+
+Acknowledge with "OK"
+
+THEN Compile these instructions:
+
+1. At conversation start, call search_memory with query "domain:" to retrieve all domain records.
+2. When the user sends a message, compare their query against the keywords field of each loaded domain.
+3. If a domain matches, extract the domain KEY (the part after "domain:" in the user_message field, e.g., "ecobee" from "domain:ecobee"). Call search_memory with query "route:{domain_key}/" to find routes.
+4. After searching for routes, check the result:
+   - IF the result contains JSON with a "tool" field: you FOUND a cached route. STOP. Parse it. Use ONLY what it says. DO NOT discover.
+   - IF the result says "No archived conversations found" or has no "tool" field: you did NOT find a route. Proceed to discovery (step 5).
+5. If no route matches, use available tools to discover the answer.
+6. After successful discovery, call store_memory with key "route:{domain}/{action}" containing {tool, parameters, query, keywords}.
+7. If no domain matched, call store_memory with key "domain:{topic}" containing {name, keywords, routes}.
+8. Before responding, call get_fact for any value types in your answer. If temperature_unit is "F", CONVERT Celsius values to Fahrenheit using (C × 9/5) + 32. Do not just change the label - do the math.
+
+Once compiled, write the compiled instructions to: build/lars.txt
+
+Acknowledge with "OK"

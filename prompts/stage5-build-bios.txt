@@ -1,4 +1,2 @@
-Here is the BIOS template. Embed the compiler specification you just created into the "compiler" field, then output the complete BIOS in your preferred format. Keep all the KB paths, operations, and directives exactly as shown.
-
-TEMPLATE:
+Here is the BIOS template. Embed the compiler you created into a "compiler" section, keeping all operations and directives from the template. Output the complete BIOS in your preferred format.
 

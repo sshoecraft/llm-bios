@@ -1,0 +1,200 @@
+  {
+    "knowledgeBase": {
+      "tools": [
+        {"name": "search_memory", "signature": "(query)", "description": "FTS5 search, returns matching documents"},
+        {"name": "store_memory", "signature": "(key, content)", "description": "Store compiled document with key"},
+        {"name": "clear_memory", "signature": "(key)", "description": "Delete document by key"},
+        {"name": "get_fact", "signature": "(key)", "description": "Direct O(1) key lookup"},
+        {"name": "set_fact", "signature": "(key, value)", "description": "Store key-value pair"},
+        {"name": "clear_fact", "signature": "(key)", "description": "Delete fact by key"}
+      ],
+      "keyPrefixes": {
+        "domain:": "Topic routing entries (loaded at startup)",
+        "schemas/": "SMCP server tool definitions (searchable via memory)",
+        "chains/": "Cached multi-step query solutions (direct lookup via facts)",
+        "facts/": "Static values (direct lookup via facts)"
+      }
+    },
+    "operations": {
+      "startup": {
+        "trigger": "conversation start",
+        "steps": [
+          "search_memory(\"domain:\") - discover all registered domains",
+          "For each domain found, load its configuration (triggers, tool, description)",
+          "Model now has routing table: knows what topics it can handle and how",
+          "Ready to route queries to appropriate tools"
+        ]
+      },
+      "query": {
+        "trigger": "user question",
+        "steps": [
+          "Match query keywords against loaded domain triggers",
+          "If domain match found:",
+          "  a. get_fact(\"chains/{query-pattern}\") - check for cached solution",
+          "  b. If chain hit: execute cached chain",
+          "  c. If chain execution fails: clear_fact the chain, continue to step d",
+          "  d. If chain miss: use domain's tool/schema to build solution",
+          "  e. Execute and cache chain on success",
+          "If no domain match:",
+          "  a. Full discovery - search available SMCP tools",
+          "  b. Find tool that can handle the query",
+          "  c. Execute tool call",
+          "  d. On success, create BOTH:",
+          "     - Chain: set_fact(\"chains/{pattern}\", {tool, args})",
+          "     - Domain: store_memory(\"domain:{topic}\", {triggers, tool, description})",
+          "Return result to user"
+        ]
+      },
+      "domain-creation": {
+        "trigger": "successful discovery with no matching domain",
+        "steps": [
+          "Identify topic name from query context (e.g., \"stocks\", \"thermostat\", \"solar\")",
+          "Extract triggers:",
+          "  - Keywords from user's query",
+          "  - Related terms the model knows (e.g., \"stock\" → also \"shares\", \"ticker\", \"position\", \"trade\")",
+          "Record what worked:",
+          "  - tool: the SMCP tool that succeeded",
+          "  - description: what this domain covers",
+          "store_memory(\"domain:{topic}\", {name, triggers, tool, description})"
+        ]
+      },
+      "learn": {
+        "trigger": "document ingestion",
+        "steps": [
+          "Classify the document using compiler.classificationRules",
+          "Extract structure using compiler.extractionRules",
+          "Emit in compiler.outputSchema format",
+          "Generate key: {type}/{name}",
+          "store_memory(key, compiled_output)"
+        ]
+      },
+      "search": {
+        "trigger": "search_memory(query)",
+        "steps": [
+          "FTS5 search across all stored documents",
+          "Return matched keys and content"
+        ]
+      },
+      "store": {
+        "trigger": "store_memory(key, content)",
+        "steps": [
+          "Compile content using compiler",
+          "Store with key"
+        ]
+      },
+      "clear": {
+        "trigger": "clear_memory(key) or clear_fact(key)",
+        "steps": [
+          "Delete document or fact by key"
+        ]
+      }
+    },
+    "directives": [
+      "At conversation start, run startup to load all domains",
+      "Match queries against domain triggers before full discovery",
+      "After successful discovery with no domain match, create both chain AND domain",
+      "Generalize domain triggers beyond just query keywords - add related terms",
+      "If cached chain execution fails, clear_fact the chain and fall back to discovery (self-healing)",
+      "Cache the tool and arguments in chains, never cache query results (data is dynamic)",
+      "Compile all documents before storage",
+      "Omit optional fields in compiled output",
+      "Use tool names exactly as defined in schemas"
+    ],
+    "compiler": {
+      "name": "compiler-spec",
+      "classificationRules": {
+        "cueWordSets": {
+          "FACT": ["is", "are", "means", "equals", "represents"],
+          "PROCEDURE": ["how to", "steps", "first", "then", "finally", "next", "after that", "repeat"],
+          "MAPPING": ["map", "table", "list", "dictionary", "key-value", "pair", "associates"],
+          "ENTITY": ["object", "type", "model", "schema", "class", "definition", "description"]
+        },
+        "tokenization": "lower-case, split on whitespace and punctuation",
+        "scoring": {
+          "perSentence": "count occurrences of each type's cue words",
+          "aggregate": "sum counts across all sentences"
+        },
+        "normalization": "divide each raw count by total cue-word matches (if any)",
+        "selection": {
+          "primary": "type with highest normalized score",
+          "tieBreakerPriority": ["FACT", "PROCEDURE", "MAPPING", "ENTITY"]
+        },
+        "fallbackWhenNoCueWords": "classify as ENTITY"
+      },
+      "extractionRules": {
+        "FACT": {
+          "pattern": "<subject> <cueVerb> <predicate>",
+          "fields": {
+            "subject": "text before first cue verb",
+            "predicate": "text after cue verb, trimmed of trailing punctuation"
+          }
+        },
+        "PROCEDURE": {
+          "detectStepMarkers": ["first", "second", "1.", "2)", "then", "finally"],
+          "fields": {
+            "steps": "ordered array of step strings"
+          },
+          "orderingLogic": [
+            "If numeric/ordinal markers exist, sort by them",
+            "Otherwise preserve original sentence order after filtering non-step sentences"
+          ]
+        },
+        "MAPPING": {
+          "pattern": ["<key> : <value>", "<key> -> <value>", "<key> = <value>", "\"X maps to Y\""],
+          "fields": {
+            "map": "object of key/value pairs"
+          },
+          "duplicateKeyResolution": "last occurrence wins"
+        },
+        "ENTITY": {
+          "pattern": [
+            "<entityName> has <attribute>",
+            "<entityName> is a <type>",
+            "The <entity> is <description>"
+          ],
+          "fields": {
+            "name": "primary noun phrase after an entity cue word",
+            "attributes": "object of attribute/value pairs"
+          },
+          "attributeExtraction": [
+            "Identify \"has\" or \"is a\" constructions",
+            "Attribute name = noun/adjective following the keyword",
+            "Value = remainder of clause"
+          ]
+        }
+      },
+      "outputSchema": {
+        "envelope": {
+  | "type": "\"FACT\" | \"PROCEDURE\" | \"MAPPING\" | \"ENTITY\"", |
+          "content": "type-specific object (see extractionRules)",
+          "metadata": {
+            "sourceHash": "SHA256 hex of original document",
+            "timestamp": "ISO-8601 UTC"
+          },
+          "errors": ["optional array of error strings"]
+        }
+      },
+      "relationshipsAndConstraints": {
+        "compactness": {
+          "omitNullOrEmpty": true,
+          "shortKeysOnly": true,
+          "deduplicateConsecutiveSteps": true,
+          "collapseDuplicateAttributes": true
+        },
+        "errorHandling": {
+          "unrecognizableType": {
+            "type": "ENTITY",
+            "content": {"name":"<unknown>","attributes":{}},
+            "errors":["No cue words detected; defaulted to ENTITY"]
+          },
+          "missingFields": "record an error string, keep whatever could be extracted",
+          "syntaxIssues": "record offending sentence in errors and ignore for content"
+        },
+        "selfCompilationGuard": {
+          "detectSelfSpec": "if top-level type is ENTITY and name equals \"compiler-spec\"",
+          "skipRecursiveReclassification": true,
+          "outputSelfDescription": "type:ENTITY, name:\"compiler-spec\", attributes contain the rule objects themselves"
+        }
+      }
+    }
+  }
